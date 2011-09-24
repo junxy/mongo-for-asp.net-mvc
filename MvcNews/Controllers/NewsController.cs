@@ -1,38 +1,31 @@
 ﻿using System;
 using System.Web.Mvc;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using MvcNews.Entities;
-using MongoDB.Bson;
+using MongoDB.Driver.Builders;
 
 namespace MvcNews.Controllers
 {
     public class NewsController : Controller
     {
-        private static readonly MongoServer mongo = null;
-
-        static NewsController()
-        {
-            mongo = MongoServer.Create(new MongoServerSettings
-            {
-                SafeMode = SafeMode.False,
-                Server = new MongoServerAddress("127.0.0.1", 27017)
-            });
-        }
+        private MongoCollection<NewsCategoryModel> categories = MongoDbContext.GetCollection<NewsCategoryModel>("newscategories");
+        private MongoCollection<NewsModel> news = MongoDbContext.GetCollection<NewsModel>("news");
 
         //
         // GET: /Home/
 
         public ActionResult Index()
         {
-            var news = mongo.GetDatabase("ddd").GetCollection<NewsModel>("news").FindAll();
-            return View(news);
+            var models = news.FindAll();
+            return View(models);
         }
 
         public ActionResult Create()
         {
-            var categories = mongo.GetDatabase("ddd").GetCollection<NewsCategoryModel>("newscategories").FindAll();
+            var categoriesList = categories.FindAll();
 
-            ViewBag.categories = new SelectList(categories, "Id", "CategoryName");
+            ViewBag.categories = new SelectList(categoriesList, "Id", "CategoryName");
 
             var news = new NewsModel()
             {
@@ -44,11 +37,8 @@ namespace MvcNews.Controllers
         [HttpPost]
         public ActionResult Create(NewsModel model, string categoryId)
         {
-            var news = mongo.GetDatabase("ddd").GetCollection<NewsModel>("news");
-            
             try
             {
-                
                 model.Category = new MongoDBRef("newscategories", BsonValue.Create(categoryId));
 
                 news.Insert(model);
@@ -63,18 +53,17 @@ namespace MvcNews.Controllers
 
         public ActionResult Edit(string id)
         {
-            var model = mongo.GetDatabase("ddd").GetCollection<NewsModel>("news").FindOneById(new ObjectId(id));
-            var categories = mongo.GetDatabase("ddd").GetCollection<NewsCategoryModel>("newscategories").FindAll();
+            var model = news.FindOneById(new ObjectId(id));
+            var categoriesList = categories.FindAll();
 
-            ViewBag.categories = new SelectList(categories, "Id", "CategoryName", model.Category.Id.AsString);
+            ViewBag.categories = new SelectList(categoriesList, "Id", "CategoryName", model.Category.Id.AsString);
 
             return View(model);
         }
+
         [HttpPost]
-        public ActionResult Edit(string id,string categoryId)
+        public ActionResult Edit(string id, string categoryId)
         {
-            var news = mongo.GetDatabase("ddd").GetCollection<NewsModel>("news");
-            
             try
             {
                 var newss = news.FindOneById(new ObjectId(id));
@@ -87,10 +76,28 @@ namespace MvcNews.Controllers
             }
             catch
             {
-
                 throw;
             }
         }
 
+        public ActionResult Details(string id)
+        {
+            var model = news.FindOneById(new ObjectId(id));
+            return View(model);
+        }
+
+        public ActionResult Delete(string id)
+        {
+            var model = news.FindOneById(new ObjectId(id));
+            return View(model);
+        }
+
+        [HttpPost]
+        public ActionResult Delete(string id, NewsCategoryModel o)
+        {
+            var model = news.FindAndRemove(Query.EQ("_id", ObjectId.Parse(id)), SortBy.Null);
+            //return View(model);
+            return RedirectToAction("Index");
+        }
     }
 }
