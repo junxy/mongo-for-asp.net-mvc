@@ -1,11 +1,9 @@
 ﻿@model IEnumerable<MvcNews.Entities.NewsModel>
-
 @{
     ViewBag.Title = "Index";
 }
-
-<h2>Index</h2>
-
+<h2>
+    Index</h2>
 <p>
     @Html.ActionLink("Create New", "Create")
     @Html.ActionLink("Go To Categories", "Index", "NewsCategory")
@@ -24,30 +22,46 @@
         <th>
             PubDate
         </th>
-        <th></th>
+        <th>
+        </th>
     </tr>
-
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.Title)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Content)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Category.Id.AsString)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.PubDate)
-        </td>
-
-        <td>
-            @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
-            @Html.ActionLink("Details", "Details", new { id = item.Id }) |
-            @Html.ActionLink("Delete", "Delete", new { id = item.Id })
-        </td>
-    </tr>
-}
-
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Title)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Content)
+            </td>
+            <td>
+                @*@Html.DisplayFor(modelItem => item.Category.Id.AsString)*@
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PubDate)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
+                @Html.ActionLink("Details", "Details", new { id = item.Id }) |
+                @Html.ActionLink("Delete", "Delete", new { id = item.Id })
+            </td>
+        </tr>
+    }
+    <tfoot>
+        <tr>
+            <td colspan="5">
+                <div style="text-align: center; margin: 20px 0;">
+                    <ul class="paging">
+                        <li class="p"><a href="?p=1">1</a></li>
+                        @for (int i = (int)ViewBag.CurrentIndex; i <= (int)ViewBag.CurrentIndex + (20); i++)
+                        {
+                            <li class="p"><a href="?p=@i">@i</a></li>
+                        }
+                        <li class="p"><a href="?p=@ViewBag.PageCount">@ViewBag.PageCount</a></li>
+                        <li>PageCount:@ViewBag.PageCount RowsCount:@ViewBag.Count</li>
+                    </ul>
+                </div>
+            </td>
+        </tr>
+    </tfoot>
 </table>

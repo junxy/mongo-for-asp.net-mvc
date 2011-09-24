@@ -73,3 +73,22 @@ textarea
 {
     display: none;
 }
+
+/*paging*/
+ul.paging, ul.paging li
+{
+    display:inline;
+    text-align:center;
+}
+ul.paging li.p a
+{
+    border:1px #ccc solid;
+    display:inline-block;
+    width:30px;
+    text-decoration:none;    
+}
+ul.paging li.p a:hover
+{
+    background-color:#ccc;
+}
+
